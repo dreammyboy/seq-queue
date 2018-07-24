@@ -10,21 +10,21 @@ describe('seq-queue', function() {
 			var queue = SeqQueue.createQueue(timeout);
 			should.exist(queue);
 			queue.should.have.property('timeout', timeout);
-			queue.should.have.property('status', SeqQueue.IDLE);
+			queue.should.have.property('status', SeqQueue.STATUS_IDLE);
 		});
 	});
 	
 	describe('#push' , function() {
 		it('should change the queue status from idle to busy and invoke the task at once when task finish when queue idle', function(done) {
 			var queue = SeqQueue.createQueue(timeout);
-			queue.should.have.property('status', SeqQueue.IDLE);
+			queue.should.have.property('status', SeqQueue.STATUS_IDLE);
 			queue.push(function(task) {
 				should.exist(task);
 				task.done();
-				queue.should.have.property('status', SeqQueue.IDLE);
+				queue.should.have.property('status', SeqQueue.STATUS_IDLE);
 				done();
 			});
-			queue.should.have.property('status', SeqQueue.BUSY);
+			queue.should.have.property('status', SeqQueue.STATUS_BUSY);
 		});
 		
 		it('should keep the status busy and keep the new task wait until the former tasks finish when queue busy', function(done) {
@@ -35,16 +35,16 @@ describe('seq-queue', function() {
 				formerTaskFinished = true;
 				task.done();
 			});
-			queue.should.have.property('status', SeqQueue.BUSY);
+			queue.should.have.property('status', SeqQueue.STATUS_BUSY);
 			//add second task
 			queue.push(function(task) {
 				formerTaskFinished.should.be.true;
-				queue.should.have.property('status', SeqQueue.BUSY);
+				queue.should.have.property('status', SeqQueue.STATUS_BUSY);
 				task.done();
-				queue.should.have.property('status', SeqQueue.IDLE);
+				queue.should.have.property('status', SeqQueue.STATUS_IDLE);
 				done();
 			});
-			queue.should.have.property('status', SeqQueue.BUSY);
+			queue.should.have.property('status', SeqQueue.STATUS_BUSY);
 		});
 		
 		it('should ok if the task call done() directly', function(done) {
@@ -112,7 +112,7 @@ describe('seq-queue', function() {
 				task.done();
 			}).should.be.true;
 			queue.close(true);
-			queue.should.have.property('status', SeqQueue.DRAINED);
+			queue.should.have.property('status', SeqQueue.STATUS_DRAINED);
 			
 			// wait all task finished
 			setTimeout(function() {
